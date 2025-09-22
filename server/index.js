@@ -10,7 +10,9 @@ const userrouter = require("./routes/customerRoutes");
 const paymentrouter = require("./routes/paymentRoutes");
 const appointmentRoutes = require("./routes/appointments");
 const doctorRoutes = require("./routes/doctors");
+const authrouter = require("./routes/auth");
 const db = require("./databse");
+const passport = require("./middleware/passport");
 
 dotenv.config();
 const app = express();
@@ -101,6 +103,10 @@ const startServer = async () => {
   app.use("/api/stripe", StripeRoutes);
   app.use("/payment", paymentrouter);
   app.use("/api/appointments", appointmentRoutes);
+
+  app.use(passport.initialize());
+  app.use("/gauth", authrouter);
+
   app.use("/api/doctors", doctorRoutes);
 
 
