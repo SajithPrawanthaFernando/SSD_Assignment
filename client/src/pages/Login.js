@@ -52,7 +52,15 @@ const Login = () => {
         }
       })
       .catch((err) => {
-        setError("Login failed. Please try again later.");
+        if (err.response?.status === 429) {
+          setError("Too many requests. Please try again later.");
+        } else if (err.response?.status === 423) {
+          setError(
+            err.response.data?.message || "Account locked. Try again later."
+          );
+        } else {
+          setError("Login failed. Please try again later.");
+        }
       });
   };
 

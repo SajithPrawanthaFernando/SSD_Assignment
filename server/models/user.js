@@ -14,6 +14,8 @@ const userSchema = new mongoose.Schema({
   notification: [{ type: String }],
   filename: { type: String },
   role: { type: String },
+  loginAttempts: { type: Number, default: 0 },
+  lockUntil: { type: Date },
   initialHealthData: {
     height: { type: Number },
     weight: { type: Number },
@@ -22,6 +24,10 @@ const userSchema = new mongoose.Schema({
     medicalConditions: { type: String },
     medications: { type: String },
   },
+});
+
+userSchema.virtual("isLocked").get(function () {
+  return !!(this.lockUntil && this.lockUntil > new Date());
 });
 
 const User = mongoose.model("User", userSchema);
