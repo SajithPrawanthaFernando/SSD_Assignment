@@ -12,6 +12,9 @@ const Login = () => {
   const navigate = useNavigate();
   const { dispatch } = useAuthContext();
 
+  const JWT_API = process.env.REACT_APP_JWT_AUTH_BASEURL;
+  const OAUTH_API = process.env.REACT_APP_OAUTH_BASEURL;
+
   const handleSubmit = (event) => {
     event.preventDefault();
 
@@ -26,7 +29,10 @@ const Login = () => {
     }
 
     axios
-      .post("http://localhost:5000/auth/login", { email, password })
+      .post(`${JWT_API}/login`, {
+        email,
+        password,
+      })
       .then((response) => {
         const { data } = response;
         if (data && data.status) {
@@ -51,7 +57,7 @@ const Login = () => {
   };
 
   const startGoogleOAuth = () => {
-    window.location.href = `http://localhost:5000/gauth/google`;
+    window.location.href = `${OAUTH_API}/google`;
   };
 
   return (

@@ -15,6 +15,9 @@ const Register = () => {
   const { dispatch } = useAuthContext();
   const navigate = useNavigate();
 
+  const JWT_API = process.env.REACT_APP_JWT_AUTH_BASEURL;
+  const OAUTH_API = process.env.REACT_APP_OAUTH_BASEURL;
+
   const validateForm = () => {
     const errors = {};
     if (!username.trim()) {
@@ -46,7 +49,7 @@ const Register = () => {
   };
 
   const startGoogleOAuth = () => {
-    window.location.href = `http://localhost:5000/gauth/google`;
+    window.location.href = `${OAUTH_API}/google`;
   };
 
   const handleSubmit = (e) => {
@@ -58,7 +61,7 @@ const Register = () => {
       const isAdmin = email.toLowerCase().startsWith("admin");
 
       axios
-        .post("http://localhost:5000/auth/register", {
+        .post(`${JWT_API}/register`, {
           username,
           email,
           phone,
