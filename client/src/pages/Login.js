@@ -50,6 +50,10 @@ const Login = () => {
       });
   };
 
+  const startGoogleOAuth = () => {
+    window.location.href = `http://localhost:5000/gauth/google`;
+  };
+
   return (
     <div className="font-sans bg-white pt-[3rem] pb-10">
       {" "}
@@ -195,7 +199,11 @@ const Login = () => {
 
               {/* Social Login Buttons */}
               <div className="space-x-6 flex justify-center mt-6">
-                <button type="button" className="border-none outline-none">
+                <button
+                  type="button"
+                  className="border-none outline-none"
+                  onClick={startGoogleOAuth}
+                >
                   {/* Google SVG */}
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
