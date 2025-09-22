@@ -4,7 +4,7 @@ import { Link, useLocation } from "react-router-dom";
 import { useAuthContext } from "../../hooks/useAuthContext";
 import React, { useEffect, useState } from "react";
 import Axios from "axios";
-import proImg from "../../assets/images/9434619.jpg";
+import proImg from "../../assets/images/template_0.jpg";
 
 const Header = () => {
   const location = useLocation();
