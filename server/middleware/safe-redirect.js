@@ -1,5 +1,5 @@
 const ALLOWED_PREFIXES = [
-  "/", // home
+  "/",
   "/about",
   "/blog",
   "/contact",
@@ -14,24 +14,25 @@ const ALLOWED_PREFIXES = [
   "/user",
 ];
 
-function safeRedirect(req, res) {
-  const raw = (req.query.next || "/").trim();
+function getSafeNext(raw = "/") {
+  const s = String(raw || "/").trim();
 
-  if (raw.includes("://") || raw.startsWith("//")) return res.redirect("/");
+  if (s.includes("://") || s.startsWith("//")) return "/";
 
-  let u;
   try {
-    u = new URL(raw, "https://example.com");
+    const u = new URL(s, "https://example.com");
+    const ok = ALLOWED_PREFIXES.some(
+      (p) => u.pathname === p || u.pathname.startsWith(p + "/")
+    );
+    return ok ? u.pathname + u.search : "/";
   } catch {
-    return res.redirect("/");
+    return "/";
   }
-
-  const ok = ALLOWED_PREFIXES.some(
-    (p) => u.pathname === p || u.pathname.startsWith(p + "/")
-  );
-
-  const dest = ok ? u.pathname + u.search : "/";
-  return res.redirect(dest);
 }
 
-module.exports = { ALLOWED_PREFIXES, safeRedirect };
+function safeRedirect(req, res) {
+  const safe = getSafeNext(req.query.next || req.body.next || "/");
+  return res.redirect(safe);
+}
+
+module.exports = { getSafeNext, safeRedirect, ALLOWED_PREFIXES };
