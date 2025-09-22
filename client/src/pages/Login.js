@@ -12,6 +12,9 @@ const Login = () => {
   const navigate = useNavigate();
   const { dispatch } = useAuthContext();
 
+  const JWT_API = process.env.REACT_APP_JWT_AUTH_BASEURL;
+  const OAUTH_API = process.env.REACT_APP_OAUTH_BASEURL;
+
   const handleSubmit = (event) => {
     event.preventDefault();
 
@@ -26,7 +29,10 @@ const Login = () => {
     }
 
     axios
-      .post("http://localhost:5000/auth/login", { email, password })
+      .post(`${JWT_API}/login`, {
+        email,
+        password,
+      })
       .then((response) => {
         const { data } = response;
         if (data && data.status) {
@@ -46,8 +52,20 @@ const Login = () => {
         }
       })
       .catch((err) => {
-        setError("Login failed. Please try again later.");
+        if (err.response?.status === 429) {
+          setError("Too many requests. Please try again later.");
+        } else if (err.response?.status === 423) {
+          setError(
+            err.response.data?.message || "Account locked. Try again later."
+          );
+        } else {
+          setError("Login failed. Please try again later.");
+        }
       });
+  };
+
+  const startGoogleOAuth = () => {
+    window.location.href = `${OAUTH_API}/google`;
   };
 
   return (
@@ -195,7 +213,11 @@ const Login = () => {
 
               {/* Social Login Buttons */}
               <div className="space-x-6 flex justify-center mt-6">
-                <button type="button" className="border-none outline-none">
+                <button
+                  type="button"
+                  className="border-none outline-none"
+                  onClick={startGoogleOAuth}
+                >
                   {/* Google SVG */}
                   <svg
                     xmlns="http://www.w3.org/2000/svg"

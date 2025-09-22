@@ -15,6 +15,14 @@ const TestRecord = require("../models/testRecord");
 const TreatmentRecord = require("../models/treatmentschema");
 const Appointment = require("../models/Appointment");
 const Doctor = require("../models/Doctor");
+const {
+  loginLimiter,
+  loginSpeedLimiter,
+} = require("../middleware/loginLimiter.js");
+const { getSafeNext } = require("../middleware/safe-redirect.js");
+
+const MAX_ATTEMPTS = 5;
+const LOCK_TIME_MS = 15 * 60 * 1000;
 
 const createToken = (_id) => {
   return jwt.sign({ _id }, process.env.KEY, { expiresIn: "90d" });
@@ -70,9 +78,11 @@ router.post("/upload/:email", (req, res) => {
   });
 });
 
-router.post("/login", async (req, res) => {
+router.post("/login", loginSpeedLimiter, loginLimiter, async (req, res) => {
   try {
     const { email, password } = req.body;
+    const rawNext = req.body.next || req.query.next;
+    const next = getSafeNext(rawNext);
 
     if (!email || !password) {
       return res
@@ -81,28 +91,56 @@ router.post("/login", async (req, res) => {
     }
 
     const user = await User.findOne({ email });
-    if (!user) {
-      return res.json({ message: "User is not registered" });
+    if (!user)
+      return res.status(400).json({ message: "User is not registered" });
+
+    if (user.isLocked) {
+      return res
+        .status(423)
+        .json({ message: "Account locked. Try again later." });
     }
-    const validPassword = await bcrypt.compare(password, user.password);
-    if (!validPassword) {
-      return res.json({ message: "Password is incorrect" });
+
+    const valid = await bcrypt.compare(password, user.password);
+    if (!valid) {
+      user.loginAttempts = (user.loginAttempts || 0) + 1;
+      if (user.loginAttempts >= MAX_ATTEMPTS) {
+        user.lockUntil = new Date(Date.now() + LOCK_TIME_MS);
+        await user.save();
+        return res
+          .status(423)
+          .json({ message: "Account locked. Try again in 15 minutes." });
+      }
+      await user.save();
+      return res.status(400).json({ message: "Password is incorrect" });
     }
-    const token = jwt.sign({ username: user.username }, process.env.KEY, {
-      expiresIn: "90d",
+
+    user.loginAttempts = 0;
+    user.lockUntil = undefined;
+    await user.save();
+
+    const token = jwt.sign(
+      { sub: user._id.toString(), email: user.email, role: user.role },
+      process.env.KEY,
+      { expiresIn: "90d" }
+    );
+
+    res.cookie("token", token, {
+      httpOnly: true,
+      sameSite: "Lax",
+      maxAge: 3600000,
     });
-    res.cookie("token", token, { httpOnly: true, maxAge: 3600000 });
 
     return res.status(200).json({
       status: true,
       message: "Login successfully",
-      email,
+      email: user.email,
       token,
       role: user.role,
+      next,
     });
-  } catch (error) {
-    console.error("Error in login:", error);
-    return res.status(500).json({ message: "Internal server error" });
+  } catch (e) {
+    console.error("Error in login:", e);
+    res.status(500).json({ message: "Internal server error" });
   }
 });
 
