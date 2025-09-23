@@ -16,6 +16,7 @@ import TellUsMore from "./pages/TellUsMore";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import Checkout from "./pages/Checkout";
+import OAuthSuccess from "./utils/OAuthSuccess";
 
 function PublicLayout() {
   const { user } = useAuthContext();
@@ -27,6 +28,7 @@ function PublicLayout() {
         <Route path="/about" element={<About />} />
         <Route path="/blog" element={<About />} />
         <Route path="/contact" element={<Contact />} />
+        <Route path="/oauth/success" element={<OAuthSuccess />} />
         <Route
           path="/login"
           element={!user ? <Login /> : <Navigate to="/" />}
