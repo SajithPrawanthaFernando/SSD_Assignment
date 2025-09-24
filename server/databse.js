@@ -20,6 +20,9 @@ class Database {
         useNewUrlParser: true,
         useUnifiedTopology: true,
         dbName: "HospitalManagement",
+        tls: true, //Enforce TLS
+        tlsAllowInvalidCertificates: false, // Reject invalid certs
+        tlsAllowInvalidHostnames: false // Do not allow invalid certs
       });
       console.log("Database connected");
     } catch (error) {
