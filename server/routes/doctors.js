@@ -47,11 +47,27 @@ router.post("/", async (req, res) => {
     res.status(400).json({ message: "Error adding doctor", error });
   }
 });
+
+// Search doctors
 router.get("/search", (req, res) => {
-  console.log("Received request for search:", req.query.query);
-  const query = req.query.query.toLowerCase();
-  // Continue with the rest of your logic...
+  try {
+    let { query } = req.query;
+
+    // Validate type before using .toLowerCase()
+    if (typeof query !== "string") {
+      return res.status(400).json({ message: "Invalid search input" });
+    }
+
+    query = query.toLowerCase();
+    console.log("Received request for search:", query);
+
+    // Continue with the rest of your logic...
+    res.json({ message: "Search received", query });
+  } catch (error) {
+    res.status(500).json({ message: "Unexpected error", error });
+  }
 });
+
 // Get doctor schedule (assuming each doctor has a schedule stored in their model)
 router.get("/:doctorId/schedule", async (req, res) => {
   const { doctorId } = req.params;

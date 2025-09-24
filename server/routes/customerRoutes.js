@@ -190,10 +190,29 @@ router.post("/register", async (req, res) => {
     let { username, email, phone, password, role } = req.body;
 
     // Trim input fields to remove leading/trailing white spaces
-    username = username.trim();
-    email = email.trim();
-    phone = phone.trim();
-    password = password.trim();
+    if (typeof username === "string") {
+      username = username.trim();
+    } else {
+      return res.status(400).json({ message: "Invalid username type" });
+    }
+
+    if (typeof email === "string") {
+      email = email.trim();
+    } else {
+      return res.status(400).json({ message: "Invalid email type" });
+    }
+
+    if (typeof phone === "string") {
+      phone = phone.trim();
+    } else {
+      return res.status(400).json({ message: "Invalid phone type" });
+    }
+
+    if (typeof password === "string") {
+      password = password.trim();
+    } else {
+      return res.status(400).json({ message: "Invalid password type" });
+    }
 
     // Validate email format
     if (!/^\S+@\S+\.\S+$/.test(email)) {
