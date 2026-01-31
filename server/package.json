@@ -4,13 +4,13 @@
   "description": "Vikum Graphic Printing Press Management System",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon app.js",
+    "start": "node init && nodemon app.js",
     "test": "jest"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "bcrypt": "^5.1.1",
+    "bcrypt": "^6.0.0",
     "body-parser": "^1.20.2",
     "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",
