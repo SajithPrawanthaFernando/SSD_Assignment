@@ -4,7 +4,7 @@
   "description": "Vikum Graphic Printing Press Management System",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon app.js",
+    "start": "node init && nodemon app.js",
     "test": "jest"
   },
   "author": "",
